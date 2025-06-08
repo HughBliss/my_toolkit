@@ -8,6 +8,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	otelsdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.32.0"
+	"time"
 )
 
 var (
@@ -26,7 +27,12 @@ func Init(ctx context.Context, appName string, appVer string, exporters ...otels
 	)))
 
 	for _, exporter := range exporters {
-		options = append(options, otelsdk.WithBatcher(exporter))
+		options = append(options, otelsdk.WithBatcher(exporter,
+			otelsdk.WithMaxQueueSize(otelsdk.DefaultMaxQueueSize*4),
+			otelsdk.WithMaxExportBatchSize(otelsdk.DefaultMaxExportBatchSize*4),
+			otelsdk.WithExportTimeout(otelsdk.DefaultExportTimeout*4*time.Millisecond),
+			otelsdk.WithBatchTimeout(otelsdk.DefaultScheduleDelay*4*time.Millisecond),
+		))
 	}
 
 	Provider = otelsdk.NewTracerProvider(options...)

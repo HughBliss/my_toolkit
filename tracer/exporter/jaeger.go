@@ -6,6 +6,8 @@ import (
 	zfg "github.com/chaindead/zerocfg"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/encoding/gzip"
 )
 
 var (
@@ -15,10 +17,11 @@ var (
 )
 
 func Jaeger(ctx context.Context) (*otlptrace.Exporter, error) {
-	exporter, err := otlptracegrpc.New(
-		ctx,
+	exporter, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithEndpoint(fmt.Sprintf("%s:%d", *jaegerHost, *jaegerPort)),
 		otlptracegrpc.WithInsecure(),
+		otlptracegrpc.WithCompressor(gzip.Name),
+		otlptracegrpc.WithDialOption(grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*10))),
 	)
 	if err != nil {
 		return nil, err
