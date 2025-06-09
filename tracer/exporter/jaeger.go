@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	jaegerGroup = zfg.NewGroup("jaeger")
-	jaegerHost  = zfg.Str("host", "0.0.0.0", "JAEGER_HOST", zfg.Group(jaegerGroup))
-	jaegerPort  = zfg.Uint32("port", 4317, "JAEGER_HOST", zfg.Group(jaegerGroup))
+	JaegerGroup = zfg.NewGroup("jaeger")
+	jaegerHost  = zfg.Str("host", "0.0.0.0", "JAEGER_HOST", zfg.Group(JaegerGroup))
+	jaegerPort  = zfg.Uint32("port", 4317, "JAEGER_HOST", zfg.Group(JaegerGroup))
 )
 
 func Jaeger(ctx context.Context) (*otlptrace.Exporter, error) {

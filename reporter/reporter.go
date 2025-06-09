@@ -12,11 +12,10 @@ import (
 )
 
 var (
-	LogLevel = zfg.Str("log_level", "INFO", "LOGLEVEL уровень логирования")
+	LogLevel = zfg.Str("log_level", "DEBUG", "LOGLEVEL уровень логирования")
 )
 
 func Init(hooks ...zerolog.Hook) {
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	level, _ := zerolog.ParseLevel(*LogLevel)
 	zerolog.SetGlobalLevel(level)
 	log.Logger = ecszerolog.New(os.Stdout).Hook(hooks...)
@@ -34,15 +33,19 @@ type reporter struct {
 func (w reporter) Start(ctx context.Context, methodName string) (context.Context, zerolog.Logger, func()) {
 	ctx, span := w.t.Start(ctx, methodName)
 	l := w.l.With().Ctx(ctx).Str("method", methodName).Logger()
+	l.Debug().Msg("start")
 
 	return ctx, l, func() {
+		l.Debug().Msg("end")
 		span.End()
 	}
 }
 
 func InitReporter(serviceName string, hooks ...zerolog.Hook) Reporter {
+	l := log.Logger.With().Str("service", serviceName).Logger().Hook(hooks...)
+	l.Debug().Msg("init")
 	return &reporter{
-		l: log.Logger.With().Str("service", serviceName).Logger().Hook(hooks...),
+		l: l,
 		t: tracer.Provider.Tracer(serviceName),
 	}
 }

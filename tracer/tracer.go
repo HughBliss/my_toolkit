@@ -3,6 +3,8 @@ package tracer
 import (
 	"context"
 	"fmt"
+	zfg "github.com/chaindead/zerocfg"
+	"github.com/hughbliss/my_toolkit/tracer/exporter"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -13,9 +15,11 @@ import (
 
 var (
 	Provider *otelsdk.TracerProvider
+
+	enableJaegerExporter = zfg.Bool("enable", true, "JAEGER_ENABLE", zfg.Group(exporter.JaegerGroup))
 )
 
-func Init(ctx context.Context, appName string, appVer string, exporters ...otelsdk.SpanExporter) func() {
+func Init(ctx context.Context, appName string, appVer string, env string) (func(), error) {
 
 	var options []otelsdk.TracerProviderOption
 
@@ -23,11 +27,14 @@ func Init(ctx context.Context, appName string, appVer string, exporters ...otels
 		semconv.SchemaURL,
 		semconv.ServiceName(appName),
 		semconv.ServiceVersion(appVer),
-		attribute.String("environment", "debug"),
+		attribute.String("environment", env),
 	)))
-
-	for _, exporter := range exporters {
-		options = append(options, otelsdk.WithBatcher(exporter,
+	if *enableJaegerExporter {
+		jaegerExporter, err := exporter.Jaeger(ctx)
+		if err != nil {
+			return nil, err
+		}
+		options = append(options, otelsdk.WithBatcher(jaegerExporter,
 			otelsdk.WithMaxQueueSize(otelsdk.DefaultMaxQueueSize*4),
 			otelsdk.WithMaxExportBatchSize(otelsdk.DefaultMaxExportBatchSize*4),
 			otelsdk.WithExportTimeout(otelsdk.DefaultExportTimeout*4*time.Millisecond),
@@ -43,5 +50,5 @@ func Init(ctx context.Context, appName string, appVer string, exporters ...otels
 		if err := Provider.Shutdown(ctx); err != nil {
 			fmt.Printf("failed to shutdown tracer: %s\n", err.Error())
 		}
-	}
+	}, nil
 }
