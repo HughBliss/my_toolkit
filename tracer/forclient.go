@@ -9,7 +9,7 @@ import (
 
 type clientTraceProvider struct{}
 
-func ClientTraceProvider() stats.Handler {
+func ClientTracePropagator() stats.Handler {
 	return new(clientTraceProvider)
 }
 

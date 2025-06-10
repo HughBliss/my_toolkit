@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/stats"
 )
 
-func ServerTraceProvider() stats.Handler {
+func ServerTracePropagator() stats.Handler {
 	return new(serverTraceProvider)
 }
 
