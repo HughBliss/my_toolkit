@@ -36,10 +36,10 @@ func (z *hook) Run(e *zerolog.Event, level zerolog.Level, message string) {
 	}
 
 	if span.SpanContext().HasTraceID() {
-		e = e.Str("traceID", span.SpanContext().TraceID().String())
+		e = e.Str("trace_id", span.SpanContext().TraceID().String())
 	}
 
 	if span.SpanContext().HasSpanID() {
-		e = e.Str("spanID", span.SpanContext().SpanID().String())
+		e = e.Str("span_id", span.SpanContext().SpanID().String())
 	}
 }
