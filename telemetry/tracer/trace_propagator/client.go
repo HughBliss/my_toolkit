@@ -1,4 +1,4 @@
-package tracer
+package trace_propagator
 
 import (
 	"context"

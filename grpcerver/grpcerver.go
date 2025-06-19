@@ -3,8 +3,9 @@ package grpcerver
 import (
 	"fmt"
 	zfg "github.com/chaindead/zerocfg"
-	"github.com/hughbliss/my_toolkit/tracer"
+	"github.com/hughbliss/my_toolkit/telemetry/tracer/trace_propagator"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"net"
@@ -26,8 +27,11 @@ func Init() *grpc.Server {
 			Time:              15 * time.Minute,
 		}),
 
-		grpc.StatsHandler(tracer.ServerTracePropagator()),
-		grpc.StatsHandler(otelgrpc.NewServerHandler(otelgrpc.WithTracerProvider(tracer.Provider))),
+		grpc.StatsHandler(trace_propagator.ServerTracePropagator()),
+		grpc.StatsHandler(otelgrpc.NewServerHandler(
+			otelgrpc.WithTracerProvider(otel.GetTracerProvider()),
+			otelgrpc.WithMeterProvider(otel.GetMeterProvider()),
+		)),
 	)
 }
 

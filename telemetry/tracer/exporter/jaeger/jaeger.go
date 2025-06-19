@@ -1,4 +1,4 @@
-package exporter
+package jaegerexporter
 
 import (
 	"context"
@@ -17,8 +17,10 @@ var (
 )
 
 func Jaeger(ctx context.Context) (*otlptrace.Exporter, error) {
+	endpoint := fmt.Sprintf("%s:%d", *jaegerHost, *jaegerPort)
+	fmt.Printf("exporting traces to jaeger at %s\n", endpoint)
 	exporter, err := otlptracegrpc.New(ctx,
-		otlptracegrpc.WithEndpoint(fmt.Sprintf("%s:%d", *jaegerHost, *jaegerPort)),
+		otlptracegrpc.WithEndpoint(endpoint),
 		otlptracegrpc.WithInsecure(),
 		otlptracegrpc.WithCompressor(gzip.Name),
 		otlptracegrpc.WithDialOption(grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*10))),

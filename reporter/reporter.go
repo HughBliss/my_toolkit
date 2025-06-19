@@ -3,9 +3,9 @@ package reporter
 import (
 	"context"
 	zfg "github.com/chaindead/zerocfg"
-	"github.com/hughbliss/my_toolkit/tracer"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 	"os"
 	"time"
@@ -65,6 +65,6 @@ func InitReporter(serviceName string, hooks ...zerolog.Hook) Reporter {
 	l.Debug().Msg("init")
 	return &reporter{
 		l: l,
-		t: tracer.Provider.Tracer(serviceName),
+		t: otel.GetTracerProvider().Tracer(serviceName),
 	}
 }

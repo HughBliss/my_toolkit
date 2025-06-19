@@ -1,4 +1,4 @@
-package tracer
+package trace_middleware
 
 import (
 	"github.com/labstack/echo/v4"
